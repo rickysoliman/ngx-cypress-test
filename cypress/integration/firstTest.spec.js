@@ -59,7 +59,7 @@ describe('Our first suite', () => {
             .click();
     });
 
-    it.only('then and wrap methods', () => {
+    it('then and wrap methods', () => {
         cy.visit('/');
         cy.contains('Forms').click();
         cy.contains('Form Layouts').click();
@@ -73,7 +73,50 @@ describe('Our first suite', () => {
             cy.contains('nb-card', 'Basic form').then(secondForm => {
                 const passwordSecondText = secondForm.find('[for="exampleInputPassword1"]').text();
                 expect(passwordLabelFirst).to.equal(passwordSecondText);
+
+                cy.wrap(secondForm).find('[for="exampleInputPassword1"]').should('contain', 'Password');
             });
+        });
+    });
+
+    it('invoke command', () => {
+        cy.visit('/');
+        cy.contains('Forms').click();
+        cy.contains('Form Layouts').click();
+
+        // option 1
+        cy.get('[for="exampleInputEmail1"]').should('contain', 'Email address');
+
+        // option 2
+        cy.get('[for="exampleInputEmail1"]').then(label => {
+            expect(label.text()).to.equal('Email address');
+        });
+
+        // option 3
+        cy.get('[for="exampleInputEmail1"]').invoke('text').then(text => {
+            expect(text).to.equal('Email address');
+        });
+
+        cy.contains('nb-card', 'Basic form')
+            .find('nb-checkbox')
+            .click()
+            .find('.custom-checkbox')
+            .invoke('attr', 'class')
+            // .should('contain', 'checked');
+            .then(classValue => {
+                expect(classValue).to.contain('checked');
+            });
+    });
+
+    it.only('assert property', () => {
+        cy.visit('/');
+        cy.contains('Forms').click();
+        cy.contains('Datepicker').click();
+
+        cy.contains('nb-card', 'Common Datepicker').find('input').then(input => {
+            cy.wrap(input).click();
+            cy.get('nb-calendar-day-picker').contains('21').click();
+            cy.wrap(input).invoke('prop', 'value').should('contain', 'Jun 21, 2021');
         });
     });
 
